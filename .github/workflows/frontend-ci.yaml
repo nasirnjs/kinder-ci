@@ -53,7 +53,7 @@ jobs:
       # ---------------- Update Kubernetes Manifests ----------------
       - name: Update K8s manifests in GitLab repo
         run: |
-          git clone https://nasirnjs:${GITLAB_TOKEN}@gitlab.com/nasirnjs/kinder-ci-k8s.git
+          git clone https://nasirnjs:${GIT_TOKEN}@gitlab.com/nasirnjs/kinder-ci-k8s.git
           cd kinder-ci-k8s
           git config --global user.email "nasirnjs@gmail.com"
           git config --global user.name "nasirnjs"
