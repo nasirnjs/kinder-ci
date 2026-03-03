@@ -8,20 +8,48 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: kinder-ap-fe   # 👈 ADD THIS LINE
+    environment: kinder-ap-fe
 
     steps:
+      # 1️⃣ Checkout
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # 2️⃣ Basic Hello Steps (kept as requested)
       - name: Print Hello
         run: echo "Hello World"
 
       - name: Print Second Message
-        run: echo "This is the second job"
+        run: echo "This is the second jobbbbb"
 
+      # 3️⃣ Setup Node
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      # 4️⃣ Install & Build React App
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Application
+        run: npm run build
+
+      # 5️⃣ Login to Docker Hub
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # 6️⃣ Build Docker Image
+      - name: Build Docker Image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/kinder-frontend:latest .
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/kinder-frontend:latest ${{ secrets.DOCKERHUB_USERNAME }}/kinder-frontend:${{ github.sha }}
+
+      # 7️⃣ Push Docker Image
+      - name: Push Docker Image
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/kinder-frontend:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/kinder-frontend:${{ github.sha }}
