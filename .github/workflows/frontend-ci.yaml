@@ -19,7 +19,7 @@ jobs:
         run: echo "Hello World"
 
       - name: Print Second Message
-        run: echo "This is the second job"
+        run: echo "This is the second jobbbbb"
 
       # 3️⃣ Setup Node
       - name: Setup Node
