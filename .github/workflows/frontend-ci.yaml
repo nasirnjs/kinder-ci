@@ -15,7 +15,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2️⃣ Basic Hello Steps (kept as requested)
+      # 2️⃣ Basic Hello Steps
       - name: Print Hello
         run: echo "Hello World"
 
@@ -28,28 +28,38 @@ jobs:
         with:
           node-version: 18
 
-      # 4️⃣ Install & Build React App
+      # 4️⃣ Install Dependencies
       - name: Install Dependencies
         run: npm install
 
+      # 5️⃣ Build React App
       - name: Build Application
         run: npm run build
 
-      # 5️⃣ Login to Docker Hub
+      # 6️⃣ Login to Docker Hub
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # 6️⃣ Build Docker Image
+      # 7️⃣ Build Docker Image
       - name: Build Docker Image
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/kinder-frontend:latest .
-          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/kinder-frontend:latest ${{ secrets.DOCKERHUB_USERNAME }}/kinder-frontend:${{ github.sha }}
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/kinder-frontend:build-${{ github.run_number }} .
 
-      # 7️⃣ Push Docker Image
-      - name: Push Docker Image
+      # 8️⃣ Tag Docker Image as Latest
+      - name: Tag Docker Image
+        run: |
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/kinder-frontend:build-${{ github.run_number }} \
+                     ${{ secrets.DOCKERHUB_USERNAME }}/kinder-frontend:latest
+
+      # 9️⃣ Push Build Number Tag
+      - name: Push Build Tag
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/kinder-frontend:build-${{ github.run_number }}
+
+      # 🔟 Push Latest Tag
+      - name: Push Latest Tag
         run: |
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/kinder-frontend:latest
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/kinder-frontend:${{ github.sha }}
