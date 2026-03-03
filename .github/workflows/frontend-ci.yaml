@@ -1,13 +1,20 @@
-stages:
-  - build
-  - deploy
+name: Frontend CI
 
-hello_job:
-  stage: build
-  script:
-    - echo "Hello World"
+on:
+  push:
+    branches:
+      - main
 
-second_job:
-  stage: build
-  script:
-    - echo "This is the second job"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # - name: Checkout code
+      #   uses: actions/checkout@v4
+
+      - name: Print Hello
+        run: echo "Hello World"
+
+      - name: Print Second Message
+        run: echo "This is the second job"
