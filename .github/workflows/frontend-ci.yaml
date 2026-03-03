@@ -1,0 +1,13 @@
+stages:
+  - build
+  - deploy
+
+hello_job:
+  stage: build
+  script:
+    - echo "Hello World"
+
+second_job:
+  stage: build
+  script:
+    - echo "This is the second job"
