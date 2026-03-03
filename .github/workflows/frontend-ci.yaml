@@ -50,10 +50,14 @@ jobs:
           docker build -t $IMAGE_NAME:$IMAGE_TAG .
           docker push $IMAGE_NAME:$IMAGE_TAG
 
-      # ---------------- Update Kubernetes Manifests ----------------
-      - name: Update K8s manifests in GitLab repo
+# ---------------- Update Kubernetes Manifests ----------------
+      - name: Update K8s manifests in GitHub repo
+        env:
+          GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
         run: |
-          git clone https://nasirnjs:${GIT_TOKEN}@gitlab.com/nasirnjs/kinder-ci-k8s.git
+          # Clone using GitHub token (username can be anything, token is the password)
+          git clone https://nasirnjs:${GIT_TOKEN}@github.com/nasirnjs/kinder-ci-k8s.git
+          
           cd kinder-ci-k8s
           git config --global user.email "nasirnjs@gmail.com"
           git config --global user.name "nasirnjs"
