@@ -1,4 +1,4 @@
-name: Frontend CI
+name: Frontend CI & Docker Build
 
 on:
   push:
@@ -6,76 +6,51 @@ on:
       - main
 
 jobs:
-
-  build-app:
+  build-and-push:
     runs-on: ubuntu-latest
     environment: kinder-ap-fe
 
+    env:
+      BUILD_NUMBER: ${{ github.run_number }}
+
     steps:
-
-      - name: Print Hello
-        run: echo "Hello World"
-
-      - name: Print Second Message
-        run: echo "This is the second jobbbbb"
-      
+      # ---------------- Checkout ----------------
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      # ---------------- Node Setup ----------------
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
 
-      - name: Install Dependencies
-        run: npm install
+      # ---------------- Install dependencies ----------------
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Build React App
+      # ---------------- Build React app ----------------
+      - name: Build React app
         run: npm run build
 
-  docker-build:
-    runs-on: ubuntu-latest
-    environment: kinder-ap-fe
-    needs: build-app
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
+      # ---------------- Docker Login ----------------
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build Docker Image
+      # ---------------- Docker Build ----------------
+      - name: Build Docker image
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/kinder-frontend:build-${{ github.run_number }} .
+          docker build \
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/kinder-frontend:latest \
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/kinder-frontend:${{ env.BUILD_NUMBER }} \
+            .
 
-  docker-push:
-    runs-on: ubuntu-latest
-    environment: kinder-ap-fe
-    needs: docker-build
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Push Docker Image
-        run: |
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/kinder-frontend:build-${{ github.run_number }}
-
-      - name: Tag as Latest
-        run: |
-          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/kinder-frontend:build-${{ github.run_number }} \
-                     ${{ secrets.DOCKERHUB_USERNAME }}/kinder-frontend:latest
-
-      - name: Push Latest Tag
+      # ---------------- Docker Push ----------------
+      - name: Push Docker image
         run: |
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/kinder-frontend:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/kinder-frontend:${{ env.BUILD_NUMBER }}
