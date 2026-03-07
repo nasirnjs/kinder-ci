@@ -49,23 +49,23 @@ jobs:
           docker build -t $IMAGE_NAME:$IMAGE_TAG .
           docker push $IMAGE_NAME:$IMAGE_TAG
 
-# ---------------- Update Kubernetes Manifests ----------------
-      - name: Update K8s manifests in GitHub repo
-        env:
-          GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
-        run: |
-          # Clone using GitHub token (username can be anything, token is the password)
-          git clone https://nasirnjs:${GIT_TOKEN}@github.com/nasirnjs/kinder-ci-k8s.git
+# # ---------------- Update Kubernetes Manifests ----------------
+#       - name: Update K8s manifests in GitHub repo
+#         env:
+#           GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
+#         run: |
+#           # Clone using GitHub token (username can be anything, token is the password)
+#           git clone https://nasirnjs:${GIT_TOKEN}@github.com/nasirnjs/kinder-ci-k8s.git
           
-          cd kinder-ci-k8s
-          git config --global user.email "nasirnjs@gmail.com"
-          git config --global user.name "nasirnjs"
-          git checkout main
+#           cd kinder-ci-k8s
+#           git config --global user.email "nasirnjs@gmail.com"
+#           git config --global user.name "nasirnjs"
+#           git checkout main
 
-          # Update deployment manifest image
-          sed -i "s|image:.*|image: $IMAGE_NAME:$IMAGE_TAG|g" kinder-app-fe.yaml
+#           # Update deployment manifest image
+#           sed -i "s|image:.*|image: $IMAGE_NAME:$IMAGE_TAG|g" kinder-app-fe.yaml
 
-          # Commit and push
-          git add kinder-app-fe.yaml
-          git commit -m "Update frontend image to build-$IMAGE_TAG" || echo "No changes to commit"
-          git push origin main
+#           # Commit and push
+#           git add kinder-app-fe.yaml
+#           git commit -m "Update frontend image to build-$IMAGE_TAG" || echo "No changes to commit"
+#           git push origin main
